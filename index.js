@@ -57,7 +57,7 @@ function handleRequest(request, response) {
     }
 
     //메시지 전송 (POST /send)
-    if(parsedUrl.pathname === '/send' && req.method === 'POST') {
+    if(parsedUrl.pathname === '/send' && request.method === 'POST') {
         let body = ''
         request.on('data', chunk => (body += chunk))
         request.on('end', () => {
@@ -70,29 +70,36 @@ function handleRequest(request, response) {
                     response.end(JSON.stringify({success:true}))
                     
                 } else {
-                    res.writ
+                    response.writeHead(400);
+                    response.end('Invalid message')
                 }
             }catch(e) {
-
+                response.writeHead(400)
+                response.send('Bad Request')
             }
         })
+        return
     }
+
+    res.writeHead(404)
+    res.end('Not found')
 }
+
 //내부적으로 필요한 이 모든 서버 기능이 포함된 객체를 반환함
 
-server.listen(3000)
+server.listen(3000, () => console.log('서버 실행 중:http://localhost:3000'))
 
 
 
 //root로 오면 
 //req : 요청에 관한 정보가 있는 객체
 //res : 응답에 관한 정보가 있는 객체
-app.get('/', (req, res) => {
-    //Hello World를 출력한다 
-    res.send('Hello World!')
-})
+// app.get('/', (req, res) => {
+//     //Hello World를 출력한다 
+//     res.send('Hello World!')
+// })
 
-//포트 5000번에서 실행한다
-app.listen(port, () => {
-    console.log(`app listening at http://localhost:${port}`)
-})
+// //포트 5000번에서 실행한다
+// app.listen(port, () => {
+//     console.log(`app listening at http://localhost:${port}`)
+// })

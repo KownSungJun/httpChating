@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+        .messages {
+            border: 1px solid #ccc;
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .msgInput {
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>HTTP Polling Chat</h1>
+    <div class="messages"></div>
+    <input class="user" type="text" placeholder="닉네임">
+    <input class="msgInput" type="text" placeholder="메시지">
+    <button class="sendBtn">보내기</button>
+
+    <script>
+        const msgBox = document.getElementsByClassName('messages')[0]
+        const input = document.getElementsByClassName('msgInput')[0]
+        const user = document.getElementsByClassName('user')[0]
+        const btn = document.getElementsByClassName('sendBtn')[0]
+        let lastData = []
+
+        btn.onclick = async () => {
+            if(!user.value || !input.value) return alert('넥네임과 메시지를 입력하세요')
+            await fetch('/send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user: user.value, text: input.value})
+            })
+            input.value = ''
+        }
+
+        async function getMessages() {
+            const res = await fetch('/messages')
+            const data = await res.json()
+
+            if(JSON.stringify(data) !== JSON.stringify(lastData)) {
+                msgBox = data.map(m => `<div>[${m.time}] <b>${m.user}</b>: ${m.text}</div>`).join('')
+                msgBox.scrollTop = msgBox.scrollHeight
+                lastData = data
+            }
+        }
+
+        setInterval(getMessages, 1000)
+    </script>
+</body>
+</html>
